@@ -51,43 +51,6 @@ export function load(defaultConfiguration) {
     showToolbar: true,
     enableAnnotationToolbar: false,
     sidebarMode: null,
-    toolbarItems: [
-        {
-          type: "custom",
-          id: "export-pdf",
-          title: "Export",
-          icon: require("./static/download"),
-          async onPress() {
-            // Here we download the current PDF when the user taps the Export toolbar button.
-            // See https://pspdfkit.com/api/web/PSPDFKit.Instance.html#exportPDF for API details.
-
-            const supportsDownloadAttribute =
-              HTMLAnchorElement.prototype.hasOwnProperty("download");
-
-            const buffer = await viewingInstance.exportPDF({ flatten: true });
-            const blob = new Blob([buffer], { type: "application/pdf" });
-
-            if (navigator.msSaveOrOpenBlob) {
-              navigator.msSaveOrOpenBlob(blob, "download.pdf");
-            } else if (!supportsDownloadAttribute) {
-              const reader = new FileReader();
-
-              reader.onloadend = () => {
-                const dataUrl = reader.result;
-
-                downloadPdf(dataUrl);
-              };
-
-              reader.readAsDataURL(blob);
-            } else {
-              const objectUrl = window.URL.createObjectURL(blob);
-
-              downloadPdf(objectUrl);
-              window.URL.revokeObjectURL(objectUrl);
-            }
-          },
-        },
-      ],
     // We need to enable form design mode so that we can create and edit
     // widgets/form fields.
     formDesignMode: true,
@@ -387,24 +350,11 @@ function insertAnnotation(type, position) {
                 height: 20,
             }),
         });
-        const dropdownWidget2 = new PSPDFKit.Annotations.WidgetAnnotation({
-            id: PSPDFKit.generateInstantId(),
-            pageIndex: 0,
-            formFieldName: 'ListBoxFormField',
-            customData: { forSigner: "landlord" },
-            boundingBox: new PSPDFKit.Geometry.Rect({
-                left: 130,
-                top: 100,
-                width: 20,
-                height: 20,
-            }),
-        });
 
         const formField = new PSPDFKit.FormFields.ListBoxFormField({
             name: 'ListBoxFormField',
             annotationIds: new PSPDFKit.Immutable.List([
                 dropdownWidget1.id,
-                dropdownWidget2.id,
             ]),
             options: new PSPDFKit.Immutable.List([
                 new PSPDFKit.FormOption({
@@ -420,7 +370,7 @@ function insertAnnotation(type, position) {
             multiSelect: true
         });
 
-        instance.create([dropdownWidget1, dropdownWidget2, formField]);
+        instance.create([dropdownWidget1, formField]);
         break;
     }
     default:
@@ -543,7 +493,6 @@ export const CustomContainer = React.forwardRef((props, ref) => {
       setTimeout(() => PSPDFKit.unload(instance), 1000);
     } else if (currentPhase === 4) {
         console.log(currentPhase, 'currentPhase');
-
       if (!loadedSigningContainer) {
         const updatedConfig = {
           ...configuration,
@@ -552,6 +501,43 @@ export const CustomContainer = React.forwardRef((props, ref) => {
             showToolbar: true,
             enableAnnotationToolbar: false,
             sidebarMode: null,
+            toolbarItems: [
+                {
+                  type: "custom",
+                  id: "export-pdf",
+                  title: "Export",
+                  icon: require("./static/download"),
+                  async onPress() {
+                    // Here we download the current PDF when the user taps the Export toolbar button.
+                    // See https://pspdfkit.com/api/web/PSPDFKit.Instance.html#exportPDF for API details.
+
+                    const supportsDownloadAttribute =
+                      HTMLAnchorElement.prototype.hasOwnProperty("download");
+
+                    const buffer = await viewingInstance.exportPDF({ flatten: true });
+                    const blob = new Blob([buffer], { type: "application/pdf" });
+
+                    if (navigator.msSaveOrOpenBlob) {
+                      navigator.msSaveOrOpenBlob(blob, "download.pdf");
+                    } else if (!supportsDownloadAttribute) {
+                      const reader = new FileReader();
+
+                      reader.onloadend = () => {
+                        const dataUrl = reader.result;
+
+                        downloadPdf(dataUrl);
+                      };
+
+                      reader.readAsDataURL(blob);
+                    } else {
+                      const objectUrl = window.URL.createObjectURL(blob);
+
+                      downloadPdf(objectUrl);
+                      window.URL.revokeObjectURL(objectUrl);
+                    }
+                  },
+                },
+            ],
           }),
 
           editableAnnotationTypes,
@@ -894,10 +880,11 @@ export const CustomContainer = React.forwardRef((props, ref) => {
     if (currentPhase === 2) {
         console.log(currentPhase, 'currentPhase');
 
-        setSigners('landlord')
-      instance.exportPDF().then((pdf) => {
-        setExportedPdf(pdf);
-      });
+        instance.exportPDF().then((pdf) => {
+            setExportedPdf(pdf);
+            setVisitedPhases([currentPhase, 4]);
+        });
+
     } else if (currentPhase === 4) {
         console.log(currentPhase, 'currentPhase');
 
@@ -1038,7 +1025,12 @@ export const CustomContainer = React.forwardRef((props, ref) => {
           <div className="design-phase__main">
             <div className="toolbar">
               <p className="toolbar__text">Form Designer</p>
-
+              <button
+                onClick={handleContinueClick}
+                className="design-phase__main-save toolbar__button"
+              >
+                Save
+              </button>
             </div>
             <div className="pspdf-container" ref={ref} />
           </div>
@@ -1085,9 +1077,6 @@ export const CustomContainer = React.forwardRef((props, ref) => {
             <span className="toolbar__text-signer">{currentSigner}</span>
           </p>
 
-          <button className="toolbar__button" onClick={handleContinueClick}>
-            Finish Signing
-          </button>
         </div>
         <div
           ref={signingContainerRef}
