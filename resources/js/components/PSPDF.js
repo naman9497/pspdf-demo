@@ -288,8 +288,7 @@ function insertAnnotation(type, position) {
     }
 
     case "checkboxes": {
-        // Create two radio buttons and position them in the document.
-        // Note that both widget annotations have the same `formFieldName` value.
+        //Make this dynamic from database for dropdown
         const checkboxWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
             id: PSPDFKit.generateInstantId(),
             pageIndex: 0,
@@ -302,6 +301,7 @@ function insertAnnotation(type, position) {
                 height: 20,
             }),
         });
+        //Make this dynamic from database for dropdown
         const checkboxWidget2 = new PSPDFKit.Annotations.WidgetAnnotation({
             id: PSPDFKit.generateInstantId(),
             pageIndex: 0,
@@ -321,6 +321,7 @@ function insertAnnotation(type, position) {
                 checkboxWidget2.id,
             ]),
             options: new PSPDFKit.Immutable.List([
+                //Make this dynamic from database for dropdown
                 new PSPDFKit.FormOption({
                     label: 'Option 1',
                     value: '1',
@@ -357,6 +358,7 @@ function insertAnnotation(type, position) {
                 dropdownWidget1.id,
             ]),
             options: new PSPDFKit.Immutable.List([
+                //Make this dynamic from database for dropdown
                 new PSPDFKit.FormOption({
                     label: 'Option 1',
                     value: '1',
@@ -550,11 +552,19 @@ export const CustomContainer = React.forwardRef((props, ref) => {
           // We clone exportedPdf with the .slice() call so that we can reuse it
           // in the future.
           updatedConfig.document = exportedPdf.slice(0);
+          console.log(new Blob([exportedPdf.slice(0)]));
+          localStorage.setItem('pspdf_local_doc', new Blob([exportedPdf.slice(0)]));
         }
 
         loadedSigningContainer = true;
         PSPDFKit.load(updatedConfig).then((instance) => {
           signingInstance = instance;
+          const items = instance.toolbarItems;
+
+          console.log(items)
+          // Hide the toolbar item with the `id` "ink"
+          // by removing it from the array of items.
+          instance.setToolbarItems(items.filter((item) => item.type === "export-pdf"));
           instance.setIsEditableAnnotation(getAnnotationMatchesSigner);
         });
       } else {
@@ -1072,10 +1082,6 @@ export const CustomContainer = React.forwardRef((props, ref) => {
 
       <div className={getPhaseClasses(4)}>
         <div className="toolbar">
-          <p className="toolbar__text toolbar__text--emphasized">
-            Signing as&nbsp;
-            <span className="toolbar__text-signer">{currentSigner}</span>
-          </p>
 
         </div>
         <div
