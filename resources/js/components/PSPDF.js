@@ -185,6 +185,30 @@ const insertableAnnotations = [
       "Use a dropdown",
     icon: "form_dropdown",
   },
+
+  {
+    type: "radio",
+    label: "Radio Box",
+    description:
+      "Use a radio box",
+    icon: "form_radio",
+  },
+
+  {
+    type: "button",
+    label: "Buttons",
+    description:
+      "Use a button",
+    icon: "form_button",
+  },
+
+  {
+    type: "combo",
+    label: "Combo Box",
+    description:
+      "Use a combo box",
+    icon: "form_combo",
+  },
 ];
 
 function createFormFieldName() {
@@ -375,6 +399,128 @@ function insertAnnotation(type, position) {
         instance.create([dropdownWidget1, formField]);
         break;
     }
+
+    case "radio" : {
+        //Make this dynamic from database for dropdown
+        const radioWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
+            id: PSPDFKit.generateInstantId(),
+            pageIndex: 0,
+            formFieldName: 'RadioBoxFormField',
+            customData: { forSigner: "landlord" },
+            boundingBox: new PSPDFKit.Geometry.Rect({
+                left: 100,
+                top: 100,
+                width: 20,
+                height: 20,
+            }),
+        });
+        //Make this dynamic from database for dropdown
+        const radioWidget2 = new PSPDFKit.Annotations.WidgetAnnotation({
+            id: PSPDFKit.generateInstantId(),
+            pageIndex: 0,
+            formFieldName: 'RadioBoxFormField',
+            customData: { forSigner: "landlord" },
+            boundingBox: new PSPDFKit.Geometry.Rect({
+                left: 130,
+                top: 100,
+                width: 20,
+                height: 20,
+            }),
+        });
+        const formField = new PSPDFKit.FormFields.RadioButtonFormField({
+            name: 'RadioBoxFormField',
+            annotationIds: new PSPDFKit.Immutable.List([
+                radioWidget1.id,
+                radioWidget2.id,
+            ]),
+            options: new PSPDFKit.Immutable.List([
+                //Make this dynamic from database for dropdown
+                new PSPDFKit.FormOption({
+                    label: 'Option 1',
+                    value: '1',
+                }),
+                new PSPDFKit.FormOption({
+                    label: 'Option 2',
+                    value: '2',
+                }),
+            ]),
+            defaultValue: '1',
+        });
+
+        instance.create([radioWidget1, radioWidget2, formField]);
+        break;
+    }
+
+    case "button" : {
+        const buttonWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
+            id: PSPDFKit.generateInstantId(),
+            pageIndex: 0,
+            formFieldName: 'ButtonFormField',
+            customData: { forSigner: "landlord" },
+            boundingBox: new PSPDFKit.Geometry.Rect({
+                left: 100,
+                top: 100,
+                width: 20,
+                height: 20,
+            }),
+        });
+
+        const formField = new PSPDFKit.FormFields.ButtonFormField({
+            name: 'ButtonFormField',
+            annotationIds: new PSPDFKit.Immutable.List([
+                buttonWidget1.id,
+            ]),
+            id: PSPDFKit.generateInstantId(),
+            label : "Button Form",
+            isDeletable: true,
+            isEditable: true,
+            isFillable: true,
+        });
+
+        instance.create([buttonWidget1, formField]);
+        break;
+    }
+
+    case "combo" : {
+        const comboWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
+            id: PSPDFKit.generateInstantId(),
+            pageIndex: 0,
+            formFieldName: 'ComboFormField',
+            customData: { forSigner: "landlord" },
+            boundingBox: new PSPDFKit.Geometry.Rect({
+                left: 100,
+                top: 100,
+                width: 20,
+                height: 20,
+            }),
+        });
+
+        const formField = new PSPDFKit.FormFields.ComboBoxFormField({
+            name: 'ComboFormField',
+            annotationIds: new PSPDFKit.Immutable.List([
+                comboWidget1.id,
+            ]),
+            options: new PSPDFKit.Immutable.List([
+                //Make this dynamic from database for dropdown
+                new PSPDFKit.FormOption({
+                    label: 'Option 1',
+                    value: '1',
+                }),
+                new PSPDFKit.FormOption({
+                    label: 'Option 2',
+                    value: '2',
+                }),
+            ]),
+            edit: true,
+            isDeletable: true,
+            isEditable: true,
+            isFillable: true,
+            label: 'Combo Form',
+        });
+
+        instance.create([comboWidget1, formField]);
+        break;
+    }
     default:
       throw new Error(`Can't insert unknown annotation! (${type})`);
   }
@@ -552,9 +698,18 @@ export const CustomContainer = React.forwardRef((props, ref) => {
           // We clone exportedPdf with the .slice() call so that we can reuse it
           // in the future.
           updatedConfig.document = exportedPdf.slice(0);
-          console.log(new Blob([exportedPdf.slice(0)]));
-          localStorage.setItem('pspdf_local_doc', new Blob([exportedPdf.slice(0)]));
-        }
+        //     const blob = new Blob([exportedPdf.slice(0)]);
+        //     const formData = new FormData();
+        //     formData.append("blob", blob);
+        //     fetch("https://localhost/save", {
+        //         method: "POST",
+        //         body: formData
+        //     });
+        //   console.log('json_string', JSON.stringify(exportedPdf.slice(0)));
+        //   localStorage.setItem('pspdf_saved_document', JSON.stringify(exportedPdf.slice(0)))
+        //   console.log(exportedPdf.slice(0));
+        //   console.log(new Blob([exportedPdf.slice(0)]));
+    }
 
         loadedSigningContainer = true;
         PSPDFKit.load(updatedConfig).then((instance) => {
@@ -869,10 +1024,6 @@ export const CustomContainer = React.forwardRef((props, ref) => {
   if (selectedWidget != null) {
     selectedWidgetProperties.push(
       <React.Fragment key="fieldAssociation">
-        <span className={`properties__category ${propertyStyles.className}`}>
-          Field Association
-        </span>
-        <div>{renderWidgetProperty(fieldAssociationData, "forSigner")}</div>
         <span className={`properties__category ${propertyStyles.className}`}>
           Styles
         </span>
