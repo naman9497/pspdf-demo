@@ -206,6 +206,22 @@ const insertableAnnotations = [
       "Use a signature field to allow the signer to fill out the signature section within the form area",
     icon: "form_signature",
   },
+
+  {
+    type: "checkboxes",
+    label: "Checkbox",
+    description:
+      "Use a check box",
+    icon: "form_checkbox",
+  },
+
+  {
+    type: "dropdown",
+    label: "Dropdown",
+    description:
+      "Use a dropdown",
+    icon: "form_dropdown",
+  },
 ];
 
 function createFormFieldName() {
@@ -308,6 +324,105 @@ function insertAnnotation(type, position) {
       break;
     }
 
+    case "checkboxes": {
+        // Create two radio buttons and position them in the document.
+        // Note that both widget annotations have the same `formFieldName` value.
+        const checkboxWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
+            id: PSPDFKit.generateInstantId(),
+            pageIndex: 0,
+            formFieldName: 'CheckboxFormField',
+            customData: { forSigner: "landlord" },
+            boundingBox: new PSPDFKit.Geometry.Rect({
+                left: 100,
+                top: 100,
+                width: 20,
+                height: 20,
+            }),
+        });
+        const checkboxWidget2 = new PSPDFKit.Annotations.WidgetAnnotation({
+            id: PSPDFKit.generateInstantId(),
+            pageIndex: 0,
+            formFieldName: 'CheckboxFormField',
+            customData: { forSigner: "landlord" },
+            boundingBox: new PSPDFKit.Geometry.Rect({
+                left: 130,
+                top: 100,
+                width: 20,
+                height: 20,
+            }),
+        });
+        const formField = new PSPDFKit.FormFields.CheckBoxFormField({
+            name: 'CheckboxFormField',
+            annotationIds: new PSPDFKit.Immutable.List([
+                checkboxWidget1.id,
+                checkboxWidget2.id,
+            ]),
+            options: new PSPDFKit.Immutable.List([
+                new PSPDFKit.FormOption({
+                    label: 'Option 1',
+                    value: '1',
+                }),
+                new PSPDFKit.FormOption({
+                    label: 'Option 2',
+                    value: '2',
+                }),
+            ]),
+            defaultValue: '1',
+        });
+
+        instance.create([checkboxWidget1, checkboxWidget2, formField]);
+        break;
+    }
+
+    case "dropdown" : {
+        const dropdownWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
+            id: PSPDFKit.generateInstantId(),
+            pageIndex: 0,
+            formFieldName: 'ListBoxFormField',
+            customData: { forSigner: "landlord" },
+            boundingBox: new PSPDFKit.Geometry.Rect({
+                left: 100,
+                top: 100,
+                width: 20,
+                height: 20,
+            }),
+        });
+        const dropdownWidget2 = new PSPDFKit.Annotations.WidgetAnnotation({
+            id: PSPDFKit.generateInstantId(),
+            pageIndex: 0,
+            formFieldName: 'ListBoxFormField',
+            customData: { forSigner: "landlord" },
+            boundingBox: new PSPDFKit.Geometry.Rect({
+                left: 130,
+                top: 100,
+                width: 20,
+                height: 20,
+            }),
+        });
+
+        const formField = new PSPDFKit.FormFields.ListBoxFormField({
+            name: 'ListBoxFormField',
+            annotationIds: new PSPDFKit.Immutable.List([
+                dropdownWidget1.id,
+                dropdownWidget2.id,
+            ]),
+            options: new PSPDFKit.Immutable.List([
+                new PSPDFKit.FormOption({
+                    label: 'Option 1',
+                    value: '1',
+                }),
+                new PSPDFKit.FormOption({
+                    label: 'Option 2',
+                    value: '2',
+                }),
+            ]),
+            defaultValue: '1',
+            multiSelect: true
+        });
+
+        instance.create([dropdownWidget1, dropdownWidget2, formField]);
+        break;
+    }
     default:
       throw new Error(`Can't insert unknown annotation! (${type})`);
   }
