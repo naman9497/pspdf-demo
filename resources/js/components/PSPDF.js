@@ -239,16 +239,14 @@ function insertAnnotation(type, position) {
     case "text-field": {
 
       const widget = new PSPDFKit.Annotations.WidgetAnnotation({
-        ...widgetProperties,
+        id: PSPDFKit.generateInstantId(),
+        formFieldName: 'TextformField',
+        pageIndex: 0,
         borderColor: PSPDFKit.Color.BLACK,
         borderWidth: 1,
         borderStyle: "solid",
         backgroundColor: new PSPDFKit.Color({ r: 220, g: 240, b: 255 }),
-
-        // This data tells us whether the landlord or tenant can fill in this
-        // form field. Otherwise it will be disabled.
         customData: { forSigner: "landlord" },
-
         boundingBox: new PSPDFKit.Geometry.Rect({
           left,
           top,
@@ -256,8 +254,9 @@ function insertAnnotation(type, position) {
           height: 15,
         }),
       });
+
       const formField = new PSPDFKit.FormFields.TextFormField({
-        name: formFieldName,
+        name: 'TextformField',
         // Link to the annotation with the ID
         annotationIds: new PSPDFKit.Immutable.List([widget.id]),
       });
@@ -355,7 +354,12 @@ function insertAnnotation(type, position) {
                     value: '2',
                 }),
             ]),
-            defaultValue: '1',
+            values: new PSPDFKit.Immutable.List([
+                '1'
+            ]),
+            isDeletable: true,
+            isEditable: true,
+            isFillable: true
         });
 
         instance.create([checkboxWidget1, checkboxWidget2, formField]);
@@ -444,7 +448,9 @@ function insertAnnotation(type, position) {
                     value: '2',
                 }),
             ]),
-            defaultValue: '1',
+            isDeletable: true,
+            isEditable: true,
+            isFillable: true
         });
 
         instance.create([radioWidget1, radioWidget2, formField]);
@@ -698,24 +704,33 @@ export const CustomContainer = React.forwardRef((props, ref) => {
           // We clone exportedPdf with the .slice() call so that we can reuse it
           // in the future.
           updatedConfig.document = exportedPdf.slice(0);
-        //     const blob = new Blob([exportedPdf.slice(0)]);
-        //     const formData = new FormData();
-        //     formData.append("blob", blob);
-        //     fetch("https://localhost/save", {
-        //         method: "POST",
-        //         body: formData
-        //     });
-        //   console.log('json_string', JSON.stringify(exportedPdf.slice(0)));
-        //   localStorage.setItem('pspdf_saved_document', JSON.stringify(exportedPdf.slice(0)))
-        //   console.log(exportedPdf.slice(0));
-        //   console.log(new Blob([exportedPdf.slice(0)]));
+          const arrayBuffer = exportedPdf.slice(0);
+          const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+          const formData = new FormData();
+          formData.append("blob", blob);
+          fetch("http://localhost/save", {
+              method: "POST",
+              body: formData
+          });
     }
 
         loadedSigningContainer = true;
         PSPDFKit.load(updatedConfig).then((instance) => {
           signingInstance = instance;
+        //   (async () => {
+        //     const arrayBuffer = await instance.exportPDF();
+        //     const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+        //     const formData = new FormData();
+        //     formData.append("blob", blob);
+        //     fetch("http://localhost/save", {
+        //         method: "POST",
+        //         body: formData
+        //     });
+        //   })();
           const items = instance.toolbarItems;
-
+          console.log("PSPDFKit loaded", instance);
+          const formFieldValues = instance.getFormFieldValues();
+          console.log(formFieldValues);
           console.log(items)
           // Hide the toolbar item with the `id` "ink"
           // by removing it from the array of items.
