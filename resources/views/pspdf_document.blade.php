@@ -77,7 +77,11 @@
                             // For production applications, please consider alternatives such a
                             // dedicated back-end storage or IndexedDB.
                             const url = await fileToDataURL(attachment);
+
+                            //Store this for signature
                             console.log(url);
+
+
                             const attachmentsString = localStorage.getItem(ATTACHMENTS_KEY);
                             const attachmentsArray = attachmentsString
                             ? JSON.parse(attachmentsString)
@@ -141,15 +145,15 @@
 
                     instance.addEventListener("inkSignatures.change", async () => {
                         const signatures = await instance.getInkSignatures();
-                        const signaturesJSON = JSON.stringify(
+                        const signaturesJSON =
                             signatures
                             .map((signature) =>
                                 PSPDFKit.Annotations.toSerializableObject(signature)
                             )
                             .toJS()
-                        );
+                        ;
 
-                        console.log(JSON.parse(signaturesJSON));
+                        console.log(signaturesJSON);
                         // localStorage.setItem("inkSignatures", signaturesJSON);
                     });
 
