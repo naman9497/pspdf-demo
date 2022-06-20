@@ -5,21 +5,27 @@
     <body class="antialiased">
 
         <div id="pspdfkit" style="height: 100vh"></div>
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="assets/pspdfkit.js"></script>
         <script>
             const STORAGE_KEY = "signatures_storage";
             const ATTACHMENTS_KEY = "attachments_storage";
 
-            $.get('http://localhost/getpdf', {}, function(data) {
-                initPSPDF(data)
-            });
+            var oReq = new XMLHttpRequest();
+            oReq.open("GET", "http://localhost/getpdf", true);
+            oReq.responseType = "blob";
 
+            oReq.onload = function(oEvent) {
+            var blob = oReq.response;
+                initPSPDF(blob)
+            };
+
+            oReq.send();
 
             function initPSPDF(data){
+                const documentBlobObjectUrl = URL.createObjectURL(new Blob([data], {type: "application/pdf"}))
                 PSPDFKit.load({
                     container: "#pspdfkit",
-                    document: URL.createObjectURL(new Blob([data], {type: "application/pdf"})),
+                    document: documentBlobObjectUrl,
                     licenseKey: "YOUR_LICENSE_KEY_GOES_HERE",
                     initialViewState: new PSPDFKit.ViewState({
                         formDesignMode: false,
@@ -31,6 +37,7 @@
                 })
                 .then(async (instance) => {
                     console.log("PSPDFKit loaded", instance);
+                    URL.revokeObjectURL(documentBlobObjectUrl);
 
                     const signaturesString = localStorage.getItem(STORAGE_KEY);
 
