@@ -20,6 +20,7 @@
                 PSPDFKit.load({
                     container: "#pspdfkit",
                     document: URL.createObjectURL(new Blob([data], {type: "application/pdf"})),
+                    licenseKey: "YOUR_LICENSE_KEY_GOES_HERE",
                     initialViewState: new PSPDFKit.ViewState({
                         formDesignMode: false,
                         // enableAnnotationToolbar: false,

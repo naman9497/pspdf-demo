@@ -335,7 +335,7 @@ function insertAnnotation(type, position) {
     }
 
     case "checkboxes": {
-        //Make this dynamic from database for dropdown
+        //TODO: Make this dynamic from database for dropdown
         const checkboxWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
             id: PSPDFKit.generateInstantId(),
             pageIndex: 0,
@@ -348,11 +348,11 @@ function insertAnnotation(type, position) {
                 height: 20,
             }),
         });
-        //Make this dynamic from database for dropdown
         const checkboxWidget2 = new PSPDFKit.Annotations.WidgetAnnotation({
             id: PSPDFKit.generateInstantId(),
             pageIndex: 0,
-            formFieldName: 'CheckboxFormField',
+            formFieldName: 'CheckboxFormField', //TODO: Get this name from database
+
             customData: { forSigner: "landlord" },
             boundingBox: new PSPDFKit.Geometry.Rect({
                 left: 130,
@@ -362,13 +362,13 @@ function insertAnnotation(type, position) {
             }),
         });
         const formField = new PSPDFKit.FormFields.CheckBoxFormField({
-            name: 'CheckboxFormField',
+            name: 'CheckboxFormField', //TODO: Same name as checkboxWidget
             annotationIds: new PSPDFKit.Immutable.List([
                 checkboxWidget1.id,
                 checkboxWidget2.id,
             ]),
             options: new PSPDFKit.Immutable.List([
-                //Make this dynamic from database for dropdown
+                //TODO: Make this dynamic from database for dropdown
                 new PSPDFKit.FormOption({
                     label: 'Option 1',
                     value: '1',
@@ -394,7 +394,7 @@ function insertAnnotation(type, position) {
         const dropdownWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
             id: PSPDFKit.generateInstantId(),
             pageIndex: 0,
-            formFieldName: 'ListBoxFormField',
+            formFieldName: 'ListBoxFormField', //TODO: Name for form
             customData: { forSigner: "landlord" },
             boundingBox: new PSPDFKit.Geometry.Rect({
                 left: 100,
@@ -410,7 +410,7 @@ function insertAnnotation(type, position) {
                 dropdownWidget1.id,
             ]),
             options: new PSPDFKit.Immutable.List([
-                //Make this dynamic from database for dropdown
+                //TODO:  Make this dynamic from database for dropdown
                 new PSPDFKit.FormOption({
                     label: 'Option 1',
                     value: '1',
@@ -429,7 +429,7 @@ function insertAnnotation(type, position) {
     }
 
     case "radio" : {
-        //Make this dynamic from database for dropdown
+        //TODO: Make this dynamic from database for dropdown
         const radioWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
             id: PSPDFKit.generateInstantId(),
             pageIndex: 0,
@@ -442,7 +442,7 @@ function insertAnnotation(type, position) {
                 height: 20,
             }),
         });
-        //Make this dynamic from database for dropdown
+        //TODO: Make this dynamic from database for dropdown
         const radioWidget2 = new PSPDFKit.Annotations.WidgetAnnotation({
             id: PSPDFKit.generateInstantId(),
             pageIndex: 0,
@@ -462,7 +462,7 @@ function insertAnnotation(type, position) {
                 radioWidget2.id,
             ]),
             options: new PSPDFKit.Immutable.List([
-                //Make this dynamic from database for dropdown
+                //TODO: Make this dynamic from database for dropdown
                 new PSPDFKit.FormOption({
                     label: 'Option 1',
                     value: '1',
@@ -531,7 +531,7 @@ function insertAnnotation(type, position) {
                 comboWidget1.id,
             ]),
             options: new PSPDFKit.Immutable.List([
-                //Make this dynamic from database for dropdown
+                //TODO: Make this dynamic from database for dropdown
                 new PSPDFKit.FormOption({
                     label: 'Option 1',
                     value: '1',
@@ -628,7 +628,8 @@ export const CustomContainer = React.forwardRef((props, ref) => {
       load({
         container: ".pspdf-container",
         document: "http://localhost/storage/closure-form.pdf", // This will come from db
-        instant: true
+        instant: true,
+        licenseKey: "YOUR_LICENSE_KEY_GOES_HERE"
         // initialViewState: new PSPDFKit.ViewState({
         //     formDesignMode: true,
         // })
