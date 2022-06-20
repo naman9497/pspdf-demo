@@ -237,29 +237,53 @@ function insertAnnotation(type, position) {
 
   switch (type) {
     case "text-field": {
+        const widget = new PSPDFKit.Annotations.WidgetAnnotation({
+            ...widgetProperties,
+            borderColor: PSPDFKit.Color.BLACK,
+            borderWidth: 1,
+            borderStyle: "solid",
+            backgroundColor: new PSPDFKit.Color({ r: 220, g: 240, b: 255 }),
 
-      const widget = new PSPDFKit.Annotations.WidgetAnnotation({
-        id: PSPDFKit.generateInstantId(),
-        formFieldName: 'TextformField',
-        pageIndex: 0,
-        borderColor: PSPDFKit.Color.BLACK,
-        borderWidth: 1,
-        borderStyle: "solid",
-        backgroundColor: new PSPDFKit.Color({ r: 220, g: 240, b: 255 }),
-        customData: { forSigner: "landlord" },
-        boundingBox: new PSPDFKit.Geometry.Rect({
-          left,
-          top,
-          width: 225,
-          height: 15,
-        }),
-      });
+            // This data tells us whether the landlord or tenant can fill in this
+            // form field. Otherwise it will be disabled.
+            customData: { forSigner: "landlord" },
 
-      const formField = new PSPDFKit.FormFields.TextFormField({
-        name: 'TextformField',
-        // Link to the annotation with the ID
-        annotationIds: new PSPDFKit.Immutable.List([widget.id]),
-      });
+            boundingBox: new PSPDFKit.Geometry.Rect({
+              left,
+              top,
+              width: 225,
+              height: 15,
+            }),
+          });
+
+          const formField = new PSPDFKit.FormFields.TextFormField({
+            name: formFieldName,
+            // Link to the annotation with the ID
+            annotationIds: new PSPDFKit.Immutable.List([widget.id]),
+          });
+
+    //   const widget = new PSPDFKit.Annotations.WidgetAnnotation({
+    //     id: PSPDFKit.generateInstantId(),
+    //     formFieldName: 'TextformField',
+    //     pageIndex: 0,
+    //     borderColor: PSPDFKit.Color.BLACK,
+    //     borderWidth: 1,
+    //     borderStyle: "solid",
+    //     backgroundColor: new PSPDFKit.Color({ r: 220, g: 240, b: 255 }),
+    //     customData: { forSigner: "landlord" },
+    //     boundingBox: new PSPDFKit.Geometry.Rect({
+    //       left,
+    //       top,
+    //       width: 225,
+    //       height: 15,
+    //     }),
+    //   });
+
+    //   const formField = new PSPDFKit.FormFields.TextFormField({
+    //     name: 'TextformField',
+    //     // Link to the annotation with the ID
+    //     annotationIds: new PSPDFKit.Immutable.List([widget.id]),
+    //   });
 
       instance.create([widget, formField]);
       break;
@@ -603,7 +627,7 @@ export const CustomContainer = React.forwardRef((props, ref) => {
   React.useEffect(() => {
       load({
         container: ".pspdf-container",
-        document: "http://localhost/storage/white.jpeg", // This will come from db
+        document: "http://localhost/storage/closure-form.pdf", // This will come from db
         instant: true
         // initialViewState: new PSPDFKit.ViewState({
         //     formDesignMode: true,
@@ -704,29 +728,29 @@ export const CustomContainer = React.forwardRef((props, ref) => {
           // We clone exportedPdf with the .slice() call so that we can reuse it
           // in the future.
           updatedConfig.document = exportedPdf.slice(0);
-          const arrayBuffer = exportedPdf.slice(0);
-          const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
-          const formData = new FormData();
-          formData.append("blob", blob);
-          fetch("http://localhost/save", {
-              method: "POST",
-              body: formData
-          });
+        //   const arrayBuffer = exportedPdf.slice(0);
+        //   const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+        //   const formData = new FormData();
+        //   formData.append("blob", blob);
+        //   fetch("http://localhost/save", {
+        //       method: "POST",
+        //       body: formData
+        //   });
     }
 
         loadedSigningContainer = true;
         PSPDFKit.load(updatedConfig).then((instance) => {
           signingInstance = instance;
-        //   (async () => {
-        //     const arrayBuffer = await instance.exportPDF();
-        //     const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
-        //     const formData = new FormData();
-        //     formData.append("blob", blob);
-        //     fetch("http://localhost/save", {
-        //         method: "POST",
-        //         body: formData
-        //     });
-        //   })();
+          (async () => {
+            const arrayBuffer = await instance.exportPDF();
+            const blob = new Blob([arrayBuffer]);
+            const formData = new FormData();
+            formData.append("blob", blob);
+            fetch("http://localhost/save", {
+                method: "POST",
+                body: formData
+            });
+          })();
           const items = instance.toolbarItems;
           console.log("PSPDFKit loaded", instance);
           const formFieldValues = instance.getFormFieldValues();
