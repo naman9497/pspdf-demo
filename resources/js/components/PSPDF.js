@@ -17,6 +17,50 @@ import PSPDFKit from "pspdfkit";
 let editableAnnotationTypes;
 let instance;
 
+let fieldsData = [
+    {
+        "id" : 1,
+        "name" : "CheckBoxField",
+        "values" : [1, 2],
+        "label": "Check Box",
+        "type" : "checkbox"
+    },
+    {
+        "id" : 2,
+        "name" : "CheckBoxField1",
+        "label": "Check Box",
+        "values" : [5, 10],
+        "type" : "checkbox"
+    },
+    {
+        "id" : 3,
+        "name" : "RadioField",
+        "label" : "Radio",
+        "values" : [5, 10],
+        "type" : "radio"
+    },
+    {
+        "id" : 4,
+        "name" : "RadioField1",
+        "label" : "Radio",
+        "values" : [5, 10],
+        "type" : "radio"
+    },
+    {
+        "id" : 5,
+        "name" : "TextField",
+        "label" : "Text",
+        "values" : "123",
+        "type" : "text"
+    },
+    {
+        "id" : 6,
+        "name" : "DropdownField",
+        "label" : "Dropdown",
+        "values" : ["Option1", "Option2"],
+        "type" : "dropdown"
+    }
+];
 // These are assigned within the React component below, since they need access
 // to the component state
 let handleAnnotationsCreate;
@@ -99,29 +143,30 @@ export function load(defaultConfiguration) {
     });
 
     instance.contentDocument.addEventListener("drop", (event) => {
-      const annotationType = event.dataTransfer.getData(dndDataMimeType);
-    console.log('annotationtype' , annotationType);
-      if (pageEl.contains(event.target) && annotationType !== "") {
-        const pretransformedRect = new PSPDFKit.Geometry.Rect({
-          left: event.clientX,
-          top: event.clientY,
-          width: 50,
-          height: 50,
-        });
+        var data = JSON.parse(event.dataTransfer.getData(dndDataMimeType));
+        const annotationType = data.type;
+        const fieldData = data.field;
+        if (pageEl.contains(event.target) && annotationType !== "") {
+            const pretransformedRect = new PSPDFKit.Geometry.Rect({
+            left: event.clientX,
+            top: event.clientY,
+            width: 50,
+            height: 50,
+            });
 
-        // We need to convert from browser units into page units
-        const annotationRect = instance.transformContentClientToPageSpace(
-          pretransformedRect,
-          0
-        );
+            // We need to convert from browser units into page units
+            const annotationRect = instance.transformContentClientToPageSpace(
+            pretransformedRect,
+            0
+            );
 
-        event.preventDefault();
+            event.preventDefault();
 
-        insertAnnotation(annotationType, {
-          left: annotationRect.left,
-          top: annotationRect.top,
-        });
-      }
+            insertAnnotation(annotationType, {
+            left: annotationRect.left,
+            top: annotationRect.top,
+            }, fieldData);
+        }
     });
 
     return instance;
@@ -145,86 +190,88 @@ function annotationTooltipCallback(annotation) {
   return [toolItemDeleteAnnotation];
 }
 
-const insertableAnnotations = [
-  {
-    type: "text-anno",
-    label: "Text (Non-Editable)",
-    description:
-      "Use a plain text annotation to fill out the blanks above the form (double-click to set the text in advance)",
-    icon: "anno_text",
-  },
+// let insertableAnnotations = [
+//   {
+//     type: "text-anno",
+//     label: "Text (Non-Editable)",
+//     description:
+//       "Use a plain text annotation to fill out the blanks above the form (double-click to set the text in advance)",
+//     icon: "anno_text",
+//   },
 
-  {
-    type: "text-field",
-    label: "Text",
-    description:
-      "Use a text field to allow the signer to fill out the name and date sections within the form area",
-    icon: "form_text",
-  },
+//   {
+//     type: "text-field",
+//     label: "Text",
+//     description:
+//       "Use a text field to allow the signer to fill out the name and date sections within the form area",
+//     icon: "form_text",
+//   },
 
-  {
-    type: "signature-field",
-    label: "Signature",
-    description:
-      "Use a signature field to allow the signer to fill out the signature section within the form area",
-    icon: "form_signature",
-  },
+//   {
+//     type: "signature-field",
+//     label: "Signature",
+//     description:
+//       "Use a signature field to allow the signer to fill out the signature section within the form area",
+//     icon: "form_signature",
+//   },
 
-  {
-    type: "checkboxes",
-    label: "Checkbox",
-    description:
-      "Use a check box",
-    icon: "form_checkbox",
-  },
+//   {
+//     type: "checkboxes",
+//     label: "Checkbox",
+//     description:
+//       "Use a check box",
+//     icon: "form_checkbox",
+//   },
 
-  {
-    type: "dropdown",
-    label: "Dropdown",
-    description:
-      "Use a dropdown",
-    icon: "form_dropdown",
-  },
+//   {
+//     type: "dropdown",
+//     label: "Dropdown",
+//     description:
+//       "Use a dropdown",
+//     icon: "form_dropdown",
+//   },
 
-  {
-    type: "radio",
-    label: "Radio Box",
-    description:
-      "Use a radio box",
-    icon: "form_radio",
-  },
+//   {
+//     type: "radio",
+//     label: "Radio Box",
+//     description:
+//       "Use a radio box",
+//     icon: "form_radio",
+//   },
 
-  {
-    type: "button",
-    label: "Buttons",
-    description:
-      "Use a button",
-    icon: "form_button",
-  },
+//   {
+//     type: "button",
+//     label: "Buttons",
+//     description:
+//       "Use a button",
+//     icon: "form_button",
+//   },
 
-  {
-    type: "combo",
-    label: "Combo Box",
-    description:
-      "Use a combo box",
-    icon: "form_combo",
-  },
-];
+//   {
+//     type: "combo",
+//     label: "Combo Box",
+//     description:
+//       "Use a combo box",
+//     icon: "form_combo",
+//   },
+// ];
+
+const insertableAnnotations = fieldsData;
 
 function createFormFieldName() {
   return `form-field-${Math.random().toString(36).slice(-5)}`;
 }
 
-function insertAnnotation(type, position) {
+function insertAnnotation(type, position, field) {
   // We need to reference this when creating both the widget annotation and the
   // form field itself, so that they are linked.
+  console.log(field);
   const formFieldName = createFormFieldName();
   const widgetProperties = {
     id: PSPDFKit.generateInstantId(),
     pageIndex: instance.viewState.currentPageIndex,
     formFieldName,
   };
-  console.log('test-123')
 
   let left = 30;
   let top = 30;
@@ -334,59 +381,45 @@ function insertAnnotation(type, position) {
       break;
     }
 
-    case "checkboxes": {
+    case "checkbox": {
         //TODO: Make this dynamic from database for dropdown
-        const checkboxWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
-            id: PSPDFKit.generateInstantId(),
-            pageIndex: 0,
-            formFieldName: 'CheckboxFormField',
-            customData: { forSigner: "landlord" },
-            boundingBox: new PSPDFKit.Geometry.Rect({
-                left: 100,
-                top: 100,
-                width: 20,
-                height: 20,
-            }),
+        var instanceArr = [];
+        var options = [];
+        field.values.map((id) => {
+            instanceArr.push(new PSPDFKit.Annotations.WidgetAnnotation({
+                id: id,
+                pageIndex: 0,
+                formFieldName: field.name,
+                customData: { forSigner: "landlord" },
+                boundingBox: new PSPDFKit.Geometry.Rect({
+                    left: 100,
+                    top: 100,
+                    width: 20,
+                    height: 20,
+                }),
+            }));
         });
-        const checkboxWidget2 = new PSPDFKit.Annotations.WidgetAnnotation({
-            id: PSPDFKit.generateInstantId(),
-            pageIndex: 0,
-            formFieldName: 'CheckboxFormField', //TODO: Get this name from database
 
-            customData: { forSigner: "landlord" },
-            boundingBox: new PSPDFKit.Geometry.Rect({
-                left: 130,
-                top: 100,
-                width: 20,
-                height: 20,
-            }),
+        field.values.map((data) => {
+            options.push(
+                new PSPDFKit.FormOption({
+                    label: 'Option ' + Math.random().toString(36).slice(-5),
+                    value: data,
+                })
+            );
         });
-        const formField = new PSPDFKit.FormFields.CheckBoxFormField({
-            name: 'CheckboxFormField', //TODO: Same name as checkboxWidget
-            annotationIds: new PSPDFKit.Immutable.List([
-                checkboxWidget1.id,
-                checkboxWidget2.id,
-            ]),
-            options: new PSPDFKit.Immutable.List([
-                //TODO: Make this dynamic from database for dropdown
-                new PSPDFKit.FormOption({
-                    label: 'Option 1',
-                    value: '1',
-                }),
-                new PSPDFKit.FormOption({
-                    label: 'Option 2',
-                    value: '2',
-                }),
-            ]),
-            values: new PSPDFKit.Immutable.List([
-                '1'
-            ]),
+
+        instanceArr.push(new PSPDFKit.FormFields.CheckBoxFormField({
+            id: PSPDFKit.generateInstantId(),
+            name: field.name,
+            annotationIds: new PSPDFKit.Immutable.List(field.values),
+            options: new PSPDFKit.Immutable.List(options),
             isDeletable: true,
             isEditable: true,
             isFillable: true
-        });
+        }));
 
-        instance.create([checkboxWidget1, checkboxWidget2, formField]);
+        instance.create(instanceArr);
         break;
     }
 
@@ -559,9 +592,12 @@ function insertAnnotation(type, position) {
 function handleInsertableAnnoClick(event) {
   // Extract the type from the data-annotation-type attribute
   const type = event.currentTarget.dataset.annotationType;
-console.log('type')
-console.log(type)
-  insertAnnotation(type);
+  const field = {
+    values: event.currentTarget.dataset.annotationValues.split(','),
+    name: event.currentTarget.dataset.annotationName,
+    id: event.currentTarget.dataset.id,
+  }
+  insertAnnotation(type, {}, field);
 }
 
 function handleInsertableAnnoDragStart(event) {
@@ -574,7 +610,14 @@ function handleInsertableAnnoDragStart(event) {
 
     // We store the annotation type in the event so that we know what type of
     // annotation to insert when the user drops.
-    event.currentTarget.dataset.annotationType
+    JSON.stringify({
+        type : event.currentTarget.dataset.annotationType,
+        field : {
+            values: event.currentTarget.dataset.annotationValues,
+            name: event.currentTarget.dataset.annotationName,
+            id: event.currentTarget.dataset.id,
+        }
+    })
   );
 
   event.stopPropagation();
@@ -1177,18 +1220,21 @@ export const CustomContainer = React.forwardRef((props, ref) => {
               {insertableAnnotations.map((insertableAnno) => {
                 return (
                   <div
-                    key={insertableAnno.type}
+                    key={insertableAnno.id}
                     className="design-phase__side-annotation"
                   >
                     <div className="design-phase__side-annotation-heading">
                       <span className="design-phase__side-annotation-label">
-                        {insertableAnno.label}
+                        {insertableAnno.name}
                       </span>
 
                       <button
                         className="design-phase__side-annotation-button"
                         onClick={handleInsertableAnnoClick}
                         data-annotation-type={insertableAnno.type}
+                        data-annotation-values={insertableAnno.values}
+                        data-annotation-name={insertableAnno.name}
+                        data-id={insertableAnno.id}
                         draggable
                         onDragStart={handleInsertableAnnoDragStart}
                       >
