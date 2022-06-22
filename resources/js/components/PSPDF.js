@@ -21,7 +21,7 @@ let fieldsData = [
     {
         "id" : 1,
         "name" : "CheckBoxField",
-        "values" : [1, 2],
+        "values" : [1, 2, 3, 4],
         "label": "Check Box",
         "type" : "checkbox"
     },
@@ -29,35 +29,28 @@ let fieldsData = [
         "id" : 2,
         "name" : "CheckBoxField1",
         "label": "Check Box",
-        "values" : [5, 10],
+        "values" : [5, 10, 15],
         "type" : "checkbox"
     },
     {
         "id" : 3,
-        "name" : "RadioField",
-        "label" : "Radio",
-        "values" : [5, 10],
+        "name" : "gender",
+        "label" : "Gender",
+        "values" : ["Male", "Female"],
         "type" : "radio"
     },
     {
         "id" : 4,
-        "name" : "RadioField1",
-        "label" : "Radio",
-        "values" : [5, 10],
+        "name" : "terms&conditions",
+        "label" : "Terms and Conditions",
+        "values" : ["Accept", "Decline"],
         "type" : "radio"
     },
     {
         "id" : 5,
-        "name" : "TextField",
-        "label" : "Text",
-        "values" : "123",
-        "type" : "text"
-    },
-    {
-        "id" : 6,
-        "name" : "DropdownField",
-        "label" : "Dropdown",
-        "values" : ["Option1", "Option2"],
+        "name" : "Countries",
+        "label" : "Countries",
+        "values" : ["India", "Australia", "USA", "Nedherlands"],
         "type" : "dropdown"
     }
 ];
@@ -382,7 +375,6 @@ function insertAnnotation(type, position, field) {
     }
 
     case "checkbox": {
-        //TODO: Make this dynamic from database for dropdown
         var instanceArr = [];
         var options = [];
         field.values.map((id) => {
@@ -424,10 +416,13 @@ function insertAnnotation(type, position, field) {
     }
 
     case "dropdown" : {
-        const dropdownWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
-            id: PSPDFKit.generateInstantId(),
+        var instanceArr = [];
+        var options = [];
+
+        instanceArr.push(new PSPDFKit.Annotations.WidgetAnnotation({
+            id: field.id,
             pageIndex: 0,
-            formFieldName: 'ListBoxFormField', //TODO: Name for form
+            formFieldName: field.name,
             customData: { forSigner: "landlord" },
             boundingBox: new PSPDFKit.Geometry.Rect({
                 left: 100,
@@ -435,82 +430,70 @@ function insertAnnotation(type, position, field) {
                 width: 20,
                 height: 20,
             }),
+        }));
+
+        field.values.map((data) => {
+            options.push(
+                new PSPDFKit.FormOption({
+                    label: data,
+                    value: data,
+                })
+            );
         });
 
-        const formField = new PSPDFKit.FormFields.ListBoxFormField({
-            name: 'ListBoxFormField',
-            annotationIds: new PSPDFKit.Immutable.List([
-                dropdownWidget1.id,
-            ]),
-            options: new PSPDFKit.Immutable.List([
-                //TODO:  Make this dynamic from database for dropdown
-                new PSPDFKit.FormOption({
-                    label: 'Option 1',
-                    value: '1',
-                }),
-                new PSPDFKit.FormOption({
-                    label: 'Option 2',
-                    value: '2',
-                }),
-            ]),
-            defaultValue: '1',
+        instanceArr.push(new PSPDFKit.FormFields.ListBoxFormField({
+            id: PSPDFKit.generateInstantId(),
+            name: field.name,
+            annotationIds: new PSPDFKit.Immutable.List([field.id]),
+            options: new PSPDFKit.Immutable.List(options),
             multiSelect: true
-        });
+        }));
 
-        instance.create([dropdownWidget1, formField]);
+        instance.create(instanceArr);
+
         break;
     }
 
     case "radio" : {
-        //TODO: Make this dynamic from database for dropdown
-        const radioWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
-            id: PSPDFKit.generateInstantId(),
-            pageIndex: 0,
-            formFieldName: 'RadioBoxFormField',
-            customData: { forSigner: "landlord" },
-            boundingBox: new PSPDFKit.Geometry.Rect({
-                left: 100,
-                top: 100,
-                width: 20,
-                height: 20,
-            }),
-        });
-        //TODO: Make this dynamic from database for dropdown
-        const radioWidget2 = new PSPDFKit.Annotations.WidgetAnnotation({
-            id: PSPDFKit.generateInstantId(),
-            pageIndex: 0,
-            formFieldName: 'RadioBoxFormField',
-            customData: { forSigner: "landlord" },
-            boundingBox: new PSPDFKit.Geometry.Rect({
-                left: 130,
-                top: 100,
-                width: 20,
-                height: 20,
-            }),
-        });
-        const formField = new PSPDFKit.FormFields.RadioButtonFormField({
-            name: 'RadioBoxFormField',
-            annotationIds: new PSPDFKit.Immutable.List([
-                radioWidget1.id,
-                radioWidget2.id,
-            ]),
-            options: new PSPDFKit.Immutable.List([
-                //TODO: Make this dynamic from database for dropdown
-                new PSPDFKit.FormOption({
-                    label: 'Option 1',
-                    value: '1',
+        var instanceArr = [];
+        var options = [];
+
+        field.values.map((id) => {
+            instanceArr.push(new PSPDFKit.Annotations.WidgetAnnotation({
+                id: id,
+                pageIndex: 0,
+                formFieldName: field.name,
+                customData: { forSigner: "landlord" },
+                boundingBox: new PSPDFKit.Geometry.Rect({
+                    left: 100,
+                    top: 100,
+                    width: 20,
+                    height: 20,
                 }),
+            }));
+        });
+
+        field.values.map((data) => {
+            options.push(
                 new PSPDFKit.FormOption({
-                    label: 'Option 2',
-                    value: '2',
-                }),
-            ]),
+                    label: 'Option ' + Math.random().toString(36).slice(-5),
+                    value: data,
+                })
+            );
+        });
+
+        instanceArr.push(new PSPDFKit.FormFields.RadioButtonFormField({
+            id: PSPDFKit.generateInstantId(),
+            name: field.name,
+            annotationIds: new PSPDFKit.Immutable.List(field.values),
+            options: new PSPDFKit.Immutable.List(options),
             isDeletable: true,
             isEditable: true,
             isFillable: true
-        });
+        }));
 
-        instance.create([radioWidget1, radioWidget2, formField]);
+        instance.create(instanceArr);
+
         break;
     }
 
@@ -1225,7 +1208,7 @@ export const CustomContainer = React.forwardRef((props, ref) => {
                   >
                     <div className="design-phase__side-annotation-heading">
                       <span className="design-phase__side-annotation-label">
-                        {insertableAnno.name}
+                        {insertableAnno.label}
                       </span>
 
                       <button
