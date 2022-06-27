@@ -183,89 +183,93 @@ function annotationTooltipCallback(annotation) {
   return [toolItemDeleteAnnotation];
 }
 
-// let insertableAnnotations = [
-//   {
-//     type: "text-anno",
-//     label: "Text (Non-Editable)",
-//     description:
-//       "Use a plain text annotation to fill out the blanks above the form (double-click to set the text in advance)",
-//     icon: "anno_text",
-//   },
+let insertableAnnotations = [
+  {
+    type: "text-anno",
+    label: "Text (Non-Editable)",
+    description:
+      "Use a plain text annotation to fill out the blanks above the form (double-click to set the text in advance)",
+    icon: "anno_text",
+  },
 
-//   {
-//     type: "text-field",
-//     label: "Text",
-//     description:
-//       "Use a text field to allow the signer to fill out the name and date sections within the form area",
-//     icon: "form_text",
-//   },
+  {
+    type: "text-field",
+    label: "Text",
+    description:
+      "Use a text field to allow the signer to fill out the name and date sections within the form area",
+    icon: "form_text",
+  },
 
-//   {
-//     type: "signature-field",
-//     label: "Signature",
-//     description:
-//       "Use a signature field to allow the signer to fill out the signature section within the form area",
-//     icon: "form_signature",
-//   },
+  {
+    type: "signature-field",
+    label: "Signature",
+    description:
+      "Use a signature field to allow the signer to fill out the signature section within the form area",
+    icon: "form_signature",
+  },
 
-//   {
-//     type: "checkboxes",
-//     label: "Checkbox",
-//     description:
-//       "Use a check box",
-//     icon: "form_checkbox",
-//   },
+  {
+    type: "checkboxes",
+    label: "Checkbox",
+    description:
+      "Use a check box",
+    icon: "form_checkbox",
+  },
 
-//   {
-//     type: "dropdown",
-//     label: "Dropdown",
-//     description:
-//       "Use a dropdown",
-//     icon: "form_dropdown",
-//   },
+  {
+    type: "dropdown",
+    label: "Dropdown",
+    description:
+      "Use a dropdown",
+    icon: "form_dropdown",
+  },
 
-//   {
-//     type: "radio",
-//     label: "Radio Box",
-//     description:
-//       "Use a radio box",
-//     icon: "form_radio",
-//   },
+  {
+    type: "radio",
+    label: "Radio Box",
+    description:
+      "Use a radio box",
+    icon: "form_radio",
+  },
 
-//   {
-//     type: "button",
-//     label: "Buttons",
-//     description:
-//       "Use a button",
-//     icon: "form_button",
-//   },
+  {
+    type: "button",
+    label: "Buttons",
+    description:
+      "Use a button",
+    icon: "form_button",
+  },
 
-//   {
-//     type: "combo",
-//     label: "Combo Box",
-//     description:
-//       "Use a combo box",
-//     icon: "form_combo",
-//   },
-// ];
+  {
+    type: "combo",
+    label: "Combo Box",
+    description:
+      "Use a combo box",
+    icon: "form_combo",
+  },
+];
 
-const insertableAnnotations = fieldsData;
+// const insertableAnnotations = fieldsData;
 
-function createFormFieldName() {
-  return `form-field-${Math.random().toString(36).slice(-5)}`;
+function createFormFieldName(type) {
+  return `form-field-${type}-${Math.random().toString(36).slice(-5)}`;
 }
 
-function insertAnnotation(type, position, field) {
+function insertAnnotation(type, position) {
   // We need to reference this when creating both the widget annotation and the
   // form field itself, so that they are linked.
-  console.log(field);
-  const formFieldName = createFormFieldName();
+
+  const formFieldName = createFormFieldName(type);
   const widgetProperties = {
     id: PSPDFKit.generateInstantId(),
     pageIndex: instance.viewState.currentPageIndex,
     formFieldName,
   };
 
+  const checkboxWidgetProperties = {
+    pageIndex: instance.viewState.currentPageIndex,
+    formFieldName,
+  };
   let left = 30;
   let top = 30;
 
@@ -275,7 +279,303 @@ function insertAnnotation(type, position, field) {
     top = position.top;
   }
 
-  switch (type) {
+//   switch (type) {
+//     case "text-field": {
+//         const widget = new PSPDFKit.Annotations.WidgetAnnotation({
+//             ...widgetProperties,
+//             borderColor: PSPDFKit.Color.BLACK,
+//             borderWidth: 1,
+//             borderStyle: "solid",
+//             backgroundColor: new PSPDFKit.Color({ r: 220, g: 240, b: 255 }),
+
+//             // This data tells us whether the landlord or tenant can fill in this
+//             // form field. Otherwise it will be disabled.
+//             customData: { forSigner: "landlord" },
+
+//             boundingBox: new PSPDFKit.Geometry.Rect({
+//               left,
+//               top,
+//               width: 225,
+//               height: 15,
+//             }),
+//           });
+
+//           const formField = new PSPDFKit.FormFields.TextFormField({
+//             name: formFieldName,
+//             // Link to the annotation with the ID
+//             annotationIds: new PSPDFKit.Immutable.List([widget.id]),
+//           });
+
+//     //   const widget = new PSPDFKit.Annotations.WidgetAnnotation({
+//     //     id: PSPDFKit.generateInstantId(),
+//     //     formFieldName: 'TextformField',
+//     //     pageIndex: 0,
+//     //     borderColor: PSPDFKit.Color.BLACK,
+//     //     borderWidth: 1,
+//     //     borderStyle: "solid",
+//     //     backgroundColor: new PSPDFKit.Color({ r: 220, g: 240, b: 255 }),
+//     //     customData: { forSigner: "landlord" },
+//     //     boundingBox: new PSPDFKit.Geometry.Rect({
+//     //       left,
+//     //       top,
+//     //       width: 225,
+//     //       height: 15,
+//     //     }),
+//     //   });
+
+//     //   const formField = new PSPDFKit.FormFields.TextFormField({
+//     //     name: 'TextformField',
+//     //     // Link to the annotation with the ID
+//     //     annotationIds: new PSPDFKit.Immutable.List([widget.id]),
+//     //   });
+
+//       instance.create([widget, formField]);
+//       break;
+//     }
+
+//     case "signature-field": {
+//       const widget = new PSPDFKit.Annotations.WidgetAnnotation({
+//         ...widgetProperties,
+//         borderColor: PSPDFKit.Color.BLACK,
+//         borderWidth: 1,
+//         borderStyle: "solid",
+//         backgroundColor: PSPDFKit.Color.WHITE,
+//         customData: { forSigner: "landlord" },
+//         boundingBox: new PSPDFKit.Geometry.Rect({
+//           left,
+//           top,
+//           width: 225,
+//           height: 30,
+//         }),
+//       });
+
+//       const formField = new PSPDFKit.FormFields.SignatureFormField({
+//         name: formFieldName,
+//         annotationIds: new PSPDFKit.Immutable.List([widget.id]),
+//       });
+
+//       instance.create([widget, formField]);
+//       break;
+//     }
+
+//     case "text-anno": {
+//       // We don't need a form field here since it is just a regular annotation.
+
+//       instance.create(
+//         new PSPDFKit.Annotations.TextAnnotation({
+//           pageIndex: instance.viewState.currentPageIndex,
+//           text: "Text Annotation",
+//           fontSize: 10,
+//           boundingBox: new PSPDFKit.Geometry.Rect({
+//             left,
+//             top,
+//             width: 100,
+//             height: 12,
+//           }),
+//         })
+//       );
+
+//       break;
+//     }
+
+//     case "checkbox": {
+//         var instanceArr = [];
+//         var options = [];
+//         field.values.map((id) => {
+//             instanceArr.push(new PSPDFKit.Annotations.WidgetAnnotation({
+//                 id: id,
+//                 pageIndex: 0,
+//                 formFieldName: field.name,
+//                 customData: { forSigner: "landlord" },
+//                 boundingBox: new PSPDFKit.Geometry.Rect({
+//                     left: 100,
+//                     top: 100,
+//                     width: 20,
+//                     height: 20,
+//                 }),
+//             }));
+//         });
+
+//         field.values.map((data) => {
+//             options.push(
+//                 new PSPDFKit.FormOption({
+//                     label: 'Option ' + Math.random().toString(36).slice(-5),
+//                     value: data,
+//                 })
+//             );
+//         });
+
+//         instanceArr.push(new PSPDFKit.FormFields.CheckBoxFormField({
+//             id: PSPDFKit.generateInstantId(),
+//             name: field.name,
+//             annotationIds: new PSPDFKit.Immutable.List(field.values),
+//             options: new PSPDFKit.Immutable.List(options),
+//             isDeletable: true,
+//             isEditable: true,
+//             isFillable: true
+//         }));
+
+//         instance.create(instanceArr);
+//         break;
+//     }
+
+//     case "dropdown" : {
+//         var instanceArr = [];
+//         var options = [];
+
+//         instanceArr.push(new PSPDFKit.Annotations.WidgetAnnotation({
+//             id: field.id,
+//             pageIndex: 0,
+//             formFieldName: field.name,
+//             customData: { forSigner: "landlord" },
+//             boundingBox: new PSPDFKit.Geometry.Rect({
+//                 left: 100,
+//                 top: 100,
+//                 width: 20,
+//                 height: 20,
+//             }),
+//         }));
+
+//         field.values.map((data) => {
+//             options.push(
+//                 new PSPDFKit.FormOption({
+//                     label: data,
+//                     value: data,
+//                 })
+//             );
+//         });
+
+//         instanceArr.push(new PSPDFKit.FormFields.ListBoxFormField({
+//             id: PSPDFKit.generateInstantId(),
+//             name: field.name,
+//             annotationIds: new PSPDFKit.Immutable.List([field.id]),
+//             options: new PSPDFKit.Immutable.List(options),
+//             multiSelect: true
+//         }));
+
+//         instance.create(instanceArr);
+
+//         break;
+//     }
+
+//     case "radio" : {
+//         var instanceArr = [];
+//         var options = [];
+
+//         field.values.map((id) => {
+//             instanceArr.push(new PSPDFKit.Annotations.WidgetAnnotation({
+//                 id: id,
+//                 pageIndex: 0,
+//                 formFieldName: field.name,
+//                 customData: { forSigner: "landlord" },
+//                 boundingBox: new PSPDFKit.Geometry.Rect({
+//                     left: 100,
+//                     top: 100,
+//                     width: 20,
+//                     height: 20,
+//                 }),
+//             }));
+//         });
+
+//         field.values.map((data) => {
+//             options.push(
+//                 new PSPDFKit.FormOption({
+//                     label: 'Option ' + Math.random().toString(36).slice(-5),
+//                     value: data,
+//                 })
+//             );
+//         });
+
+//         instanceArr.push(new PSPDFKit.FormFields.RadioButtonFormField({
+//             id: PSPDFKit.generateInstantId(),
+//             name: field.name,
+//             annotationIds: new PSPDFKit.Immutable.List(field.values),
+//             options: new PSPDFKit.Immutable.List(options),
+//             isDeletable: true,
+//             isEditable: true,
+//             isFillable: true
+//         }));
+
+//         instance.create(instanceArr);
+
+//         break;
+//     }
+
+//     case "button" : {
+//         const buttonWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
+//             id: PSPDFKit.generateInstantId(),
+//             pageIndex: 0,
+//             formFieldName: 'ButtonFormField',
+//             customData: { forSigner: "landlord" },
+//             boundingBox: new PSPDFKit.Geometry.Rect({
+//                 left: 100,
+//                 top: 100,
+//                 width: 20,
+//                 height: 20,
+//             }),
+//         });
+
+//         const formField = new PSPDFKit.FormFields.ButtonFormField({
+//             name: 'ButtonFormField',
+//             annotationIds: new PSPDFKit.Immutable.List([
+//                 buttonWidget1.id,
+//             ]),
+//             id: PSPDFKit.generateInstantId(),
+//             label : "Button Form",
+//             isDeletable: true,
+//             isEditable: true,
+//             isFillable: true,
+//         });
+
+//         instance.create([buttonWidget1, formField]);
+//         break;
+//     }
+
+//     case "combo" : {
+//         const comboWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
+//             id: PSPDFKit.generateInstantId(),
+//             pageIndex: 0,
+//             formFieldName: 'ComboFormField',
+//             customData: { forSigner: "landlord" },
+//             boundingBox: new PSPDFKit.Geometry.Rect({
+//                 left: 100,
+//                 top: 100,
+//                 width: 20,
+//                 height: 20,
+//             }),
+//         });
+
+//         const formField = new PSPDFKit.FormFields.ComboBoxFormField({
+//             name: 'ComboFormField',
+//             annotationIds: new PSPDFKit.Immutable.List([
+//                 comboWidget1.id,
+//             ]),
+//             options: new PSPDFKit.Immutable.List([
+//                 //TODO: Make this dynamic from database for dropdown
+//                 new PSPDFKit.FormOption({
+//                     label: 'Option 1',
+//                     value: '1',
+//                 }),
+//                 new PSPDFKit.FormOption({
+//                     label: 'Option 2',
+//                     value: '2',
+//                 }),
+//             ]),
+//             edit: true,
+//             isDeletable: true,
+//             isEditable: true,
+//             isFillable: true,
+//             label: 'Combo Form',
+//         });
+
+//         instance.create([comboWidget1, formField]);
+//         break;
+//     }
+//     default:
+//       throw new Error(`Can't insert unknown annotation! (${type})`);
+//   }
+
+switch (type) {
     case "text-field": {
         const widget = new PSPDFKit.Annotations.WidgetAnnotation({
             ...widgetProperties,
@@ -374,55 +674,11 @@ function insertAnnotation(type, position, field) {
       break;
     }
 
-    case "checkbox": {
-        var instanceArr = [];
-        var options = [];
-        field.values.map((id) => {
-            instanceArr.push(new PSPDFKit.Annotations.WidgetAnnotation({
-                id: id,
-                pageIndex: 0,
-                formFieldName: field.name,
-                customData: { forSigner: "landlord" },
-                boundingBox: new PSPDFKit.Geometry.Rect({
-                    left: 100,
-                    top: 100,
-                    width: 20,
-                    height: 20,
-                }),
-            }));
-        });
-
-        field.values.map((data) => {
-            options.push(
-                new PSPDFKit.FormOption({
-                    label: 'Option ' + Math.random().toString(36).slice(-5),
-                    value: data,
-                })
-            );
-        });
-
-        instanceArr.push(new PSPDFKit.FormFields.CheckBoxFormField({
-            id: PSPDFKit.generateInstantId(),
-            name: field.name,
-            annotationIds: new PSPDFKit.Immutable.List(field.values),
-            options: new PSPDFKit.Immutable.List(options),
-            isDeletable: true,
-            isEditable: true,
-            isFillable: true
-        }));
-
-        instance.create(instanceArr);
-        break;
-    }
-
-    case "dropdown" : {
-        var instanceArr = [];
-        var options = [];
-
-        instanceArr.push(new PSPDFKit.Annotations.WidgetAnnotation({
-            id: field.id,
-            pageIndex: 0,
-            formFieldName: field.name,
+    case "checkboxes": {
+        //TODO: Make this dynamic from database for dropdown
+        const checkboxWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
+            ...checkboxWidgetProperties,
+            id : PSPDFKit.generateInstantId(),
             customData: { forSigner: "landlord" },
             boundingBox: new PSPDFKit.Geometry.Rect({
                 left: 100,
@@ -430,78 +686,132 @@ function insertAnnotation(type, position, field) {
                 width: 20,
                 height: 20,
             }),
-        }));
-
-        field.values.map((data) => {
-            options.push(
-                new PSPDFKit.FormOption({
-                    label: data,
-                    value: data,
-                })
-            );
+        });
+        const checkboxWidget2 = new PSPDFKit.Annotations.WidgetAnnotation({
+            ...checkboxWidgetProperties,
+            id : PSPDFKit.generateInstantId(),
+            customData: { forSigner: "landlord" },
+            boundingBox: new PSPDFKit.Geometry.Rect({
+                left: 130,
+                top: 100,
+                width: 20,
+                height: 20,
+            }),
         });
 
-        instanceArr.push(new PSPDFKit.FormFields.ListBoxFormField({
-            id: PSPDFKit.generateInstantId(),
-            name: field.name,
-            annotationIds: new PSPDFKit.Immutable.List([field.id]),
-            options: new PSPDFKit.Immutable.List(options),
+        const formField = new PSPDFKit.FormFields.CheckBoxFormField({
+            name: formFieldName,
+            annotationIds: new PSPDFKit.Immutable.List([
+                checkboxWidget1.id,
+                checkboxWidget2.id,
+            ]),
+            options: new PSPDFKit.Immutable.List([
+                new PSPDFKit.FormOption({
+                    label: 'Option 1',
+                    value: 'Yes',
+                }),
+                new PSPDFKit.FormOption({
+                    label: 'Option 2',
+                    value: 'No',
+                }),
+            ]),
+            isDeletable: true,
+            isEditable: true,
+            isFillable: true
+        });
+
+        instance.create([checkboxWidget1, checkboxWidget2, formField]);
+        break;
+    }
+
+    case "dropdown" : {
+        const dropdownWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
+            ...widgetProperties,
+            customData: { forSigner: "landlord" },
+            boundingBox: new PSPDFKit.Geometry.Rect({
+                left: 100,
+                top: 100,
+                width: 20,
+                height: 20,
+            }),
+        });
+
+        const formField = new PSPDFKit.FormFields.ListBoxFormField({
+            name: formFieldName,
+            annotationIds: new PSPDFKit.Immutable.List([
+                dropdownWidget1.id,
+            ]),
+            options: new PSPDFKit.Immutable.List([
+                //TODO:  Make this dynamic from database for dropdown
+                new PSPDFKit.FormOption({
+                    label: 'Option 1',
+                    value: '1',
+                }),
+                new PSPDFKit.FormOption({
+                    label: 'Option 2',
+                    value: '2',
+                }),
+            ]),
+            defaultValue: '1',
             multiSelect: true
-        }));
+        });
 
-        instance.create(instanceArr);
-
+        instance.create([dropdownWidget1, formField]);
         break;
     }
 
     case "radio" : {
-        var instanceArr = [];
-        var options = [];
-
-        field.values.map((id) => {
-            instanceArr.push(new PSPDFKit.Annotations.WidgetAnnotation({
-                id: id,
-                pageIndex: 0,
-                formFieldName: field.name,
-                customData: { forSigner: "landlord" },
-                boundingBox: new PSPDFKit.Geometry.Rect({
-                    left: 100,
-                    top: 100,
-                    width: 20,
-                    height: 20,
-                }),
-            }));
+        const radioWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
+            ...checkboxWidgetProperties,
+            id : PSPDFKit.generateInstantId(),
+            customData: { forSigner: "landlord" },
+            boundingBox: new PSPDFKit.Geometry.Rect({
+                left: 100,
+                top: 100,
+                width: 20,
+                height: 20,
+            }),
         });
-
-        field.values.map((data) => {
-            options.push(
+        const radioWidget2 = new PSPDFKit.Annotations.WidgetAnnotation({
+            ...checkboxWidgetProperties,
+            id : PSPDFKit.generateInstantId(),
+            customData: { forSigner: "landlord" },
+            boundingBox: new PSPDFKit.Geometry.Rect({
+                left: 130,
+                top: 100,
+                width: 20,
+                height: 20,
+            }),
+        });
+        const formField = new PSPDFKit.FormFields.RadioButtonFormField({
+            name: formFieldName,
+            annotationIds: new PSPDFKit.Immutable.List([
+                radioWidget1.id,
+                radioWidget2.id,
+            ]),
+            options: new PSPDFKit.Immutable.List([
+                //TODO: Make this dynamic from database for dropdown
                 new PSPDFKit.FormOption({
-                    label: 'Option ' + Math.random().toString(36).slice(-5),
-                    value: data,
-                })
-            );
-        });
-
-        instanceArr.push(new PSPDFKit.FormFields.RadioButtonFormField({
-            id: PSPDFKit.generateInstantId(),
-            name: field.name,
-            annotationIds: new PSPDFKit.Immutable.List(field.values),
-            options: new PSPDFKit.Immutable.List(options),
+                    label: 'Option 1',
+                    value: '1',
+                }),
+                new PSPDFKit.FormOption({
+                    label: 'Option 2',
+                    value: '2',
+                }),
+            ]),
             isDeletable: true,
             isEditable: true,
             isFillable: true
-        }));
+        });
 
-        instance.create(instanceArr);
-
+        instance.create([radioWidget1, radioWidget2, formField]);
         break;
     }
 
     case "button" : {
         const buttonWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
-            id: PSPDFKit.generateInstantId(),
-            pageIndex: 0,
-            formFieldName: 'ButtonFormField',
+            ...widgetProperties,
             customData: { forSigner: "landlord" },
             boundingBox: new PSPDFKit.Geometry.Rect({
                 left: 100,
@@ -512,7 +822,7 @@ function insertAnnotation(type, position, field) {
         });
 
         const formField = new PSPDFKit.FormFields.ButtonFormField({
-            name: 'ButtonFormField',
+            name: formFieldName,
             annotationIds: new PSPDFKit.Immutable.List([
                 buttonWidget1.id,
             ]),
@@ -529,9 +839,7 @@ function insertAnnotation(type, position, field) {
 
     case "combo" : {
         const comboWidget1 = new PSPDFKit.Annotations.WidgetAnnotation({
-            id: PSPDFKit.generateInstantId(),
-            pageIndex: 0,
-            formFieldName: 'ComboFormField',
+            ...widgetProperties,
             customData: { forSigner: "landlord" },
             boundingBox: new PSPDFKit.Geometry.Rect({
                 left: 100,
@@ -542,7 +850,7 @@ function insertAnnotation(type, position, field) {
         });
 
         const formField = new PSPDFKit.FormFields.ComboBoxFormField({
-            name: 'ComboFormField',
+            name: formFieldName,
             annotationIds: new PSPDFKit.Immutable.List([
                 comboWidget1.id,
             ]),
@@ -573,15 +881,12 @@ function insertAnnotation(type, position, field) {
 }
 
 function handleInsertableAnnoClick(event) {
-  // Extract the type from the data-annotation-type attribute
-  const type = event.currentTarget.dataset.annotationType;
-  const field = {
-    values: event.currentTarget.dataset.annotationValues.split(','),
-    name: event.currentTarget.dataset.annotationName,
-    id: event.currentTarget.dataset.id,
+    // Extract the type from the data-annotation-type attribute
+    const type = event.currentTarget.dataset.annotationType;
+  console.log('type')
+  console.log(type)
+    insertAnnotation(type);
   }
-  insertAnnotation(type, {}, field);
-}
 
 function handleInsertableAnnoDragStart(event) {
   if (!isIe) {
@@ -1203,7 +1508,7 @@ export const CustomContainer = React.forwardRef((props, ref) => {
               {insertableAnnotations.map((insertableAnno) => {
                 return (
                   <div
-                    key={insertableAnno.id}
+                    key={insertableAnno.type}
                     className="design-phase__side-annotation"
                   >
                     <div className="design-phase__side-annotation-heading">
