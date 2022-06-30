@@ -22,11 +22,41 @@
             oReq.send();
 
             function initPSPDF(data){
+                let _instance;
+                const downloadButton = {
+                    type: "custom",
+                    id: "download-pdf",
+                    title: "Download",
+                    onPress: () => {
+                        _instance.exportPDF({ flatten: true }).then((buffer) => {
+                            const blob = new Blob([buffer], { type: "application/pdf" });
+                            const fileName = "document.pdf";
+                            if (window.navigator.msSaveOrOpenBlob) {
+                                window.navigator.msSaveOrOpenBlob(blob, fileName);
+                            } else {
+                                const objectUrl = URL.createObjectURL(blob);
+                                const a = document.createElement("a");
+                                a.href = objectUrl;
+                                a.style = "display: none";
+                                a.download = fileName;
+                                document.body.appendChild(a);
+                                a.click();
+                                URL.revokeObjectURL(objectUrl);
+                                document.body.removeChild(a);
+                            }
+                        });
+                    }
+                };
+
+                const items = PSPDFKit.defaultToolbarItems;
+                // Add the download button to the toolbar.
+                items.push(downloadButton);
                 const documentBlobObjectUrl = URL.createObjectURL(new Blob([data], {type: "application/pdf"}))
                 PSPDFKit.load({
                     container: "#pspdfkit",
                     document: documentBlobObjectUrl,
                     licenseKey: "YOUR_LICENSE_KEY_GOES_HERE",
+                    toolbarItems: items,
                     initialViewState: new PSPDFKit.ViewState({
                         formDesignMode: false,
                         // enableAnnotationToolbar: false,
@@ -36,6 +66,7 @@
 
                 })
                 .then(async (instance) => {
+                    _instance = instance;
                     console.log("PSPDFKit loaded", instance);
                     URL.revokeObjectURL(documentBlobObjectUrl);
 
