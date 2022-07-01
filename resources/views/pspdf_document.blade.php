@@ -178,6 +178,7 @@
                     });
 
                     instance.addEventListener("formFieldValues.update", formFields => {
+                        //TODO : Save database values
                         const formFieldValues = instance.getFormFieldValues();
                         console.log(formFieldValues); // { textField: 'Text Value', checkBoxField: ['A', 'B'], buttonField: null }
                     });

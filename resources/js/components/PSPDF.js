@@ -1074,6 +1074,7 @@ export const CustomContainer = React.forwardRef((props, ref) => {
         PSPDFKit.load(updatedConfig).then((instance) => {
           signingInstance = instance;
           (async () => {
+            //TODO: Save blob data
             const arrayBuffer = await instance.exportPDF();
             const blob = new Blob([arrayBuffer]);
             const formData = new FormData();
